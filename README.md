@@ -102,3 +102,97 @@ Computer vision powered decision engine.
 
 ## 🏗️ System Architecture
 
+
+
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+- React (Vite)
+- TypeScript
+- Tailwind CSS
+- ShadCN UI
+- Mobile-first design
+
+### Backend
+- FastAPI (Python)
+- JWT Authentication
+- Role-based access control
+- REST APIs
+
+### Database
+- PostgreSQL
+- SQLAlchemy ORM
+- Alembic migrations
+
+### AI / ML
+- TensorFlow / Keras
+- Image classification model
+- Confidence-based validation
+- Invalid image detection
+
+---
+
+## 📁 Project Structure
+
+
+---
+
+## 🔐 User Roles & Permissions
+
+| Role | Capabilities |
+|----|-------------|
+| Citizen | Report & track issues |
+| Authority Officer | Manage issues |
+| Department Head | SLA & escalation |
+| Field Worker | Resolve assigned tasks |
+| Admin | System-wide oversight |
+
+---
+
+## 📊 Analytics & Governance Intelligence
+
+- Monthly issue trends
+- Ward-wise heatmaps
+- Department performance metrics
+- SLA compliance monitoring
+- Workforce efficiency analytics
+- Downloadable reports (CSV / PDF)
+
+---
+
+## 🧪 AI Confidence Logic
+
+- High confidence → Auto accepted
+- Medium confidence → User confirmation
+- Low confidence → Marked invalid
+- “Others / Non-civic” → Rejected automatically
+
+This prevents misuse and improves data quality.
+
+---
+
+## ⚙️ Local Setup
+
+### Backend
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+---
+
+If you want next, I can give you:
+- API documentation (Swagger)
+- ER diagram
+- Database schema
+- Deployment guide (Docker / AWS)
+- Research paper format
+
+Just say the word.
+
+
