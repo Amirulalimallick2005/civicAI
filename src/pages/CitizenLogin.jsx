@@ -1,15 +1,41 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom'; 
 import { User, Mail, Lock, LogIn, ShieldCheck } from 'lucide-react';
 import '../styles/authority.css';
 
 const CitizenLogin = () => {
   const navigate = useNavigate(); 
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Since this is a dummy login, we don't check credentials yet.
-    navigate('/citizen-portal'); 
+    
+    try {
+      // 1. Send login request to FastAPI
+      const response = await fetch("http://127.0.0.1:8000/auth/login/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Login Successful!");
+        
+        // --- KEY SYNC FIX START ---
+        // We use "authUserEmail" to match the localStorage.getItem in FinalReport.jsx
+        localStorage.setItem("isAuth", "true"); 
+        localStorage.setItem("authUserEmail", data.email); 
+        // --- KEY SYNC FIX END ---
+
+        navigate('/citizen-portal'); 
+      } else {
+        alert("Login Failed: " + (data.detail || "Invalid credentials"));
+      }
+    } catch (error) {
+      alert("Backend server is not running!");
+    }
   };
 
   return (
@@ -28,7 +54,13 @@ const CitizenLogin = () => {
             <label className="form-label">Email Address</label>
             <div className="input-with-icon">
               <Mail size={18} />
-              <input type="email" className="login-input" placeholder="yourname@example.com" required />
+              <input 
+                type="email" 
+                className="login-input" 
+                placeholder="yourname@example.com" 
+                onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                required 
+              />
             </div>
           </div>
 
@@ -36,7 +68,13 @@ const CitizenLogin = () => {
             <label className="form-label">Password</label>
             <div className="input-with-icon">
               <Lock size={18} />
-              <input type="password" className="login-input" placeholder="••••••••" required />
+              <input 
+                type="password" 
+                className="login-input" 
+                placeholder="••••••••" 
+                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                required 
+              />
             </div>
           </div>
 
@@ -44,12 +82,10 @@ const CitizenLogin = () => {
             Login to CivicAI <LogIn size={18} style={{marginLeft: '8px'}} />
           </button>
 
-          {/* New User Section Added Below the Button */}
           <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748b' }}>
-            New user? <a href="#signup" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>Create a citizen account</a>
+            New user? <Link to="/signup-user" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>Create a citizen account</Link>
           </div>
 
-          {/* Professional Footer Added */}
           <div className="login-footer" style={{ marginTop: '30px', textAlign: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
             <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#64748b', fontSize: '12px', marginBottom: '4px' }}>
               <ShieldCheck size={14} /> Secure access for verified citizens

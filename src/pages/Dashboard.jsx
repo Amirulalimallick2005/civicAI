@@ -1,158 +1,254 @@
 import React from 'react';
 import { 
-  AlertTriangle, 
-  Users, 
+  FileText, 
   Clock, 
+  AlertTriangle,
   CheckCircle,
+  Users,
   TrendingUp,
-  MapPin,
-  MessageSquare
+  Bell
 } from 'lucide-react';
-import MapView from '../components/MapView';
-import StatsCard from '../components/StatsCard';
-import IssueTable from '../components/IssueTable';
+import StatsCard from './StatsCard';
+import MapView from './MapView';
 
-const Dashboard = () => {
-  const statsData = [
-    {
-      title: 'Active Issues',
-      value: '1,247',
-      change: '+12.5%',
-      icon: <AlertTriangle size={24} />,
-      color: '#F59E0B',
-      trend: 'up'
-    },
-    {
-      title: 'Workforce Online',
-      value: '342',
-      change: '+5.2%',
-      icon: <Users size={24} />,
-      color: '#3B82F6',
-      trend: 'up'
-    },
-    {
-      title: 'Avg Resolution Time',
-      value: '2.3 days',
-      change: '-8.7%',
-      icon: <Clock size={24} />,
-      color: '#10B981',
-      trend: 'down'
-    },
-    {
-      title: 'Completion Rate',
-      value: '94.2%',
-      change: '+3.1%',
-      icon: <CheckCircle size={24} />,
-      color: '#8B5CF6',
-      trend: 'up'
+// --- MANUAL CSS BLOCK ---
+const dashboardStyles = (
+  <style>{`
+    .dashboard-wrapper {
+      padding: 2rem;
+      background-color: #f8fafc;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
-  ];
-
-  const recentIssues = [
-    {
-      id: 'ISSUE-4821',
-      title: 'Road Repair Needed',
-      description: 'Major pothole on Main Street',
-      category: 'Infrastructure',
-      priority: 'high',
-      status: 'in-progress',
-      assignedTo: 'John Smith',
-      createdDate: '2024-01-15'
-    },
-    {
-      id: 'ISSUE-4820',
-      title: 'Garbage Collection',
-      description: 'Overflowing bins in downtown',
-      category: 'Sanitation',
-      priority: 'medium',
-      status: 'pending',
-      assignedTo: 'Sarah Johnson',
-      createdDate: '2024-01-15'
-    },
-    {
-      id: 'ISSUE-4819',
-      title: 'Street Light Outage',
-      description: 'Multiple lights not working',
-      category: 'Utilities',
-      priority: 'critical',
-      status: 'in-progress',
-      assignedTo: 'Mike Wilson',
-      createdDate: '2024-01-14'
+    .page-header { margin-bottom: 2rem; }
+    .page-title { font-size: 1.875rem; font-weight: 700; color: #0f172a; margin: 0; }
+    .page-subtitle { color: #64748b; margin-top: 0.25rem; }
+    
+    .metrics-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+      gap: 1.5rem; 
+      margin-bottom: 2rem; 
     }
-  ];
+    
+    .content-layout { 
+      display: grid; 
+      grid-template-columns: 2fr 1fr; 
+      gap: 1.5rem; 
+      margin-bottom: 2rem; 
+    }
+    
+    .panel { 
+      background: white; 
+      border-radius: 0.75rem; 
+      border: 1px solid #e2e8f0; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+      overflow: hidden; 
+    }
+    .panel-header { 
+      background: #f8fafc; 
+      padding: 1rem 1.5rem; 
+      border-bottom: 1px solid #e2e8f0; 
+      display: flex; 
+      align-items: center; 
+      gap: 0.75rem; 
+    }
+    .panel-title { font-weight: 600; color: #0f172a; margin: 0; }
+    
+    .alert-list { max-height: 384px; overflow-y: auto; }
+    .alert-item { padding: 1rem; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+    .alert-item:hover { background: #fcfcfd; }
+    
+    .worker-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+      gap: 1rem; 
+      padding: 1.5rem; 
+    }
+    .worker-card { 
+      background: #f8fafc; 
+      padding: 1rem; 
+      border-radius: 0.5rem; 
+      border: 1px solid #e2e8f0; 
+    }
+    
+    .btn-blue {
+      background: #2563eb;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-blue:hover { background: #1d4ed8; }
 
-  const mapIssues = [
-    { id: 1, title: 'Road Repair', coordinates: { x: 30, y: 40 }, status: 'in-progress', priority: 'high' },
-    { id: 2, title: 'Garbage Issue', coordinates: { x: 60, y: 30 }, status: 'pending', priority: 'medium' },
-    { id: 3, title: 'Water Leak', coordinates: { x: 45, y: 60 }, status: 'resolved', priority: 'low' },
-  ];
+    @media (max-width: 1024px) {
+      .content-layout { grid-template-columns: 1fr; }
+    }
+  `}</style>
+);
+
+// Mock data
+const mockMapMarkers = [
+  { id: 'ISS-001', lat: 28.5355, lng: 77.3910, type: 'Pothole', status: 'Pending' },
+  { id: 'ISS-002', lat: 28.5365, lng: 77.3920, type: 'Streetlight', status: 'In Progress' },
+  { id: 'ISS-003', lat: 28.5345, lng: 77.3900, type: 'Garbage', status: 'Assigned' },
+  { id: 'ISS-004', lat: 28.5375, lng: 77.3930, type: 'Water Leak', status: 'Resolved' },
+  { id: 'ISS-005', lat: 28.5335, lng: 77.3890, type: 'Drainage', status: 'Pending' },
+];
+
+const recentAlerts = [
+  { id: 1, type: 'SLA Breach', message: 'Issue CVC-2026-00234 has exceeded SLA time limit', time: '5 minutes ago', severity: 'critical' },
+  { id: 2, type: 'High Priority', message: 'New critical pothole reported in Zone A', time: '12 minutes ago', severity: 'high' },
+  { id: 3, type: 'Worker Update', message: 'Rajesh Kumar completed issue CVC-2026-00198', time: '25 minutes ago', severity: 'normal' },
+  { id: 4, type: 'Escalation', message: 'Issue CVC-2026-00187 escalated to supervisor', time: '1 hour ago', severity: 'high' }
+];
+
+const workerStatus = [
+  { name: 'Rajesh Kumar', status: 'Available', tasks: 2, zone: 'Zone A' },
+  { name: 'Priya Sharma', status: 'Busy', tasks: 4, zone: 'Zone B' },
+  { name: 'Amit Patel', status: 'Available', tasks: 1, zone: 'Zone A' },
+  { name: 'Sunita Verma', status: 'Busy', tasks: 3, zone: 'Zone C' },
+];
+
+export default function Dashboard({ department }) {
+  
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case 'critical': return 'border-l-red-500 bg-red-50';
+      case 'high': return 'border-l-orange-500 bg-orange-50';
+      default: return 'border-l-blue-500 bg-blue-50';
+    }
+  };
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <div>
-          <h1>Authority Dashboard</h1>
-          <p>Welcome back! Here's what's happening in your city today.</p>
-        </div>
-        <div className="header-actions">
-          <button className="btn-primary">
-            <MessageSquare size={16} />
-            New Report
-          </button>
-        </div>
+    <div className="dashboard-wrapper">
+      {dashboardStyles}
+      
+      {/* Page Header */}
+      <div className="page-header">
+        <h1 className="page-title">Department Dashboard</h1>
+        <p className="page-subtitle">Command center for {department || "General Administration"}</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        {statsData.map((stat, index) => (
-          <StatsCard key={index} {...stat} />
-        ))}
+      {/* Top Metrics */}
+      <div className="metrics-grid">
+        <StatsCard
+          title="Total Issues"
+          value="147"
+          icon={FileText}
+          trend="+12%"
+          trendUp={true}
+          bgColor="from-blue-50 to-blue-100"
+          iconColor="text-blue-600"
+          textColor="text-blue-900"
+        />
+        <StatsCard
+          title="Pending"
+          value="23"
+          icon={Clock}
+          bgColor="from-orange-50 to-orange-100"
+          iconColor="text-orange-600"
+          textColor="text-orange-900"
+        />
+        <StatsCard
+          title="In Progress"
+          value="45"
+          icon={TrendingUp}
+          bgColor="from-yellow-50 to-yellow-100"
+          iconColor="text-yellow-600"
+          textColor="text-yellow-900"
+        />
+        <StatsCard
+          title="SLA Breached"
+          value="8"
+          icon={AlertTriangle}
+          trend="-3 vs yesterday"
+          trendUp={false}
+          bgColor="from-red-50 to-red-100"
+          iconColor="text-red-600"
+          textColor="text-red-900"
+        />
       </div>
 
-      {/* Map and Recent Activity */}
-      <div className="dashboard-content">
-        <div className="content-left">
-          <MapView issues={mapIssues} />
+      {/* Main Content Grid */}
+      <div className="content-layout">
+        <div className="map-panel">
+          <MapView markers={mockMapMarkers || []} />
         </div>
-        <div className="content-right">
-          <div className="recent-activity">
-            <div className="activity-header">
-              <h3>Recent Activity</h3>
-              <button className="text-btn">View All</button>
-            </div>
-            <div className="activity-list">
-              {[
-                { time: '10:30 AM', action: 'New issue reported', user: 'Citizen App', status: 'pending' },
-                { time: '09:45 AM', action: 'Issue resolved', user: 'Field Worker #42', status: 'resolved' },
-                { time: '08:20 AM', action: 'Worker assigned', user: 'Admin User', status: 'in-progress' },
-                { time: 'Yesterday', action: 'Monthly report generated', user: 'System', status: 'completed' },
-              ].map((activity, index) => (
-                <div key={index} className="activity-item">
-                  <div className="activity-time">{activity.time}</div>
-                  <div className="activity-details">
-                    <div className="activity-text">{activity.action}</div>
-                    <div className="activity-user">{activity.user}</div>
-                  </div>
-                  <span className={`activity-status ${activity.status}`}>
-                    {activity.status}
+
+        {/* Recent Alerts Panel */}
+        <div className="panel">
+          <div className="panel-header">
+            <Bell size={20} color="#ea580c" />
+            <h3 className="panel-title">Recent Alerts</h3>
+          </div>
+          
+          <div className="alert-list">
+            {recentAlerts.map((alert) => (
+              <div 
+                key={alert.id} 
+                className={`alert-item border-l-4 ${getSeverityColor(alert.severity)}`}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase', color: '#475569' }}>
+                    {alert.type}
                   </span>
+                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{alert.time}</span>
                 </div>
-              ))}
-            </div>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#334155' }}>{alert.message}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div style={{ padding: '0.75rem 1.5rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <button style={{ border: 'none', background: 'none', color: '#2563eb', fontSize: '0.875rem', cursor: 'pointer' }}>
+              View All Alerts →
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Recent Issues Table */}
-      <div className="recent-issues">
-        <div className="section-header">
-          <h3>Recent Issues</h3>
-          <button className="btn-secondary">View All Issues</button>
+      {/* Worker Availability Summary */}
+      <div className="panel">
+        <div className="panel-header">
+          <Users size={20} color="#2563eb" />
+          <h3 className="panel-title">Worker Availability</h3>
         </div>
-        <IssueTable issues={recentIssues} />
+        
+        <div className="worker-grid">
+          {workerStatus.map((worker, index) => (
+            <div key={index} className="worker-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ width: '32px', height: '32px', background: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>
+                  <Users size={16} color="#2563eb" />
+                </div>
+                <span style={{ 
+                  fontSize: '0.7rem', 
+                  padding: '2px 8px', 
+                  borderRadius: '12px',
+                  background: worker.status === 'Available' ? '#dcfce7' : '#fef9c3',
+                  color: worker.status === 'Available' ? '#15803d' : '#854d0e'
+                }}>
+                  {worker.status}
+                </span>
+              </div>
+              <p style={{ margin: '0 0 2px 0', fontSize: '0.875rem', fontWeight: '600' }}>{worker.name}</p>
+              <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#64748b' }}>{worker.zone}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: '#64748b' }}>
+                <CheckCircle size={12} />
+                <span>{worker.tasks} active tasks</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end' }}>
+          <button className="btn-blue">Manage All Workers →</button>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

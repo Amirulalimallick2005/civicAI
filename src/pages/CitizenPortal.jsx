@@ -126,7 +126,11 @@ const CitizenPortal = () => {
               >
                 Report Now <ArrowRight size={20} />
               </button>
-              <button className="btn-secondary btn-hover-effect" style={{ padding: '16px 36px', borderRadius: '12px', fontWeight: '700', fontSize: '16px' }}>
+             <button 
+                onClick={() => navigate('/track-complaint')}
+                className="btn-secondary btn-hover-effect" 
+                style={{ padding: '16px 36px', borderRadius: '12px', fontWeight: '700', fontSize: '16px' }}
+              >
                 Track Status
               </button>
             </div>

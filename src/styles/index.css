@@ -1,0 +1,4 @@
+/* styles/index.css */
+@import './fonts.css';
+@import './tailwind.css'; /* This contains @import 'tailwindcss' */
+@import './theme.css';    /* This contains your @theme and @layer base */

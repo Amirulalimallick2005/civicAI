@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Use @plugin for Tailwind plugins in v4 */
+@plugin "tw-animate-css";
+
+@source "../**/*.{js,ts,jsx,tsx}";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}

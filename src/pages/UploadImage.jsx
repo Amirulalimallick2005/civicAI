@@ -16,49 +16,48 @@ const UploadImage = () => {
   const [error, setError] = useState(null);
 
   // --- CLEAN HANDLER: SENDS DATA TO YOUR FRIEND'S BACKEND ---
-  const handleAIAnalysis = async () => {
-    if (!capturedImage) return;
-    setIsLocating(true);
+ const handleAIAnalysis = async () => {
+  if (!capturedImage) return;
+  setIsLocating(true); 
 
-    try {
-      // 1. Prepare the image for the backend
-      const base64Response = await fetch(capturedImage);
-      const blob = await base64Response.blob();
-      const formData = new FormData();
-      formData.append("image", blob, "report_image.jpg");
-      
-      // 2. Add location metadata to the form
-      formData.append("latitude", locationDetails?.lat || 0);
-      formData.append("longitude", locationDetails?.lng || 0);
-      formData.append("address", locationDetails?.address || "Unknown");
+  try {
+    const base64Response = await fetch(capturedImage);
+    const blob = await base64Response.blob();
+    
+    const formData = new FormData();
+    // "file" must match the variable name in your FastAPI: async def detect(file: ...)
+    formData.append("file", blob, "report.jpg"); 
+    formData.append("latitude", locationDetails?.lat || 0);
+    formData.append("longitude", locationDetails?.lng || 0);
+    formData.append("address", locationDetails?.address || "Unknown");
 
-      // 3. YOUR FRIEND'S FASTAPI URL GOES HERE
-      // For now, it points to localhost:8000 (FastAPI default)
-      const response = await fetch("http://127.0.0.1:8000/analyze-issue/", {
-        method: "POST",
-        body: formData,
-      });
+    const response = await fetch("http://127.0.0.1:8000/detect", {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!response.ok) throw new Error("Backend connection failed");
+    if (!response.ok) throw new Error("AI Server Error");
 
-      const data = await response.json();
+    const data = await response.json();
 
-      // 4. Navigate to the result page with the backend's data
-      navigate("/analysis-result", {
-        state: {
-          image: capturedImage,
-          predictions: data.predictions, // This comes from her database/model
-          location: locationDetails
-        }
-      });
+    // Navigate to results page with the AI's answer
+    navigate("/analysis-result", {
+      state: {
+        image: capturedImage,
+        predictions: {
+          label: data.class,
+          confidence: data.confidence
+        },
+        location: locationDetails
+      }
+    });
 
-    } catch (err) {
-      console.error("Backend Error:", err);
-      alert("Could not connect to the Backend Server. Please ensure it is running.");
-    } finally {
-      setIsLocating(false);
-    }
-  };
+  } catch (err) {
+    alert("Connection Error: " + err.message);
+  } finally {
+    setIsLocating(false);
+  }
+};
 
   // --- LOCATION UTILITIES (KEEP THESE, THEY ARE IMPORTANT) ---
   const convertDMSToDD = (degrees, minutes, seconds, direction) => {
