@@ -1,224 +1,469 @@
-import React from 'react';
-import { MapPin, Clock, AlertTriangle, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  MapPin, FileText, Activity, Clock, CheckCircle2, 
+  User, Star, Search, X, XCircle, Eye, Image as ImageIcon 
+} from 'lucide-react';
 
-// --- INJECTED STYLES (DOES NOT ALTER ORIGINAL CODE) ---
 const css = `
-  .bg-white { background-color: #ffffff; }
-  .rounded-xl { border-radius: 0.75rem; }
-  .border { border: 1px solid #e2e8f0; }
-  .border-slate-200 { border-color: #e2e8f0; }
-  .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-  .overflow-hidden { overflow: hidden; }
-  .overflow-x-auto { overflow-x: auto; }
-  .w-full { width: 100%; }
-  .bg-slate-50 { background-color: #f8fafc; }
-  .border-b { border-bottom: 1px solid #e2e8f0; }
-  .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-  .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-  .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-  .text-left { text-align: left; }
-  .text-center { text-align: center; }
-  .text-xs { font-size: 0.75rem; }
-  .text-sm { font-size: 0.875rem; }
-  .font-semibold { font-weight: 600; }
-  .font-medium { font-weight: 500; }
-  .font-bold { font-weight: 700; }
-  .text-slate-600 { color: #475569; }
-  .text-slate-900 { color: #0f172a; }
-  .text-slate-700 { color: #334155; }
-  .text-slate-400 { color: #94a3b8; }
-  .text-slate-500 { color: #64748b; }
-  .text-blue-600 { color: #2563eb; }
-  .uppercase { text-transform: uppercase; }
-  .tracking-wider { letter-spacing: 0.05em; }
-  .divide-y > * + * { border-top: 1px solid #e2e8f0; }
-  .hover\\:bg-slate-50:hover { background-color: #f8fafc; }
-  .transition { transition: all 0.2s; }
-  .cursor-pointer { cursor: pointer; }
-  .flex { display: flex; }
-  .items-center { align-items: center; }
-  .gap-1 { gap: 0.25rem; }
-  .gap-2 { gap: 0.5rem; }
-  .rounded-full { border-radius: 9999px; }
-  .rounded-lg { border-radius: 0.5rem; }
-  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .max-w-\\[150px\\] { max-w: 150px; }
-  .mx-auto { margin-left: auto; margin-right: auto; }
-  .mb-3 { margin-bottom: 0.75rem; }
-  .w-4 { width: 1rem; }
-  .h-4 { height: 1rem; }
-  .w-12 { width: 3rem; }
-  .h-12 { height: 3rem; }
-  
-  /* Priority/Status Colors */
-  .bg-red-100 { background-color: #fee2e2; }
-  .text-red-700 { color: #b91c1c; }
-  .border-red-300 { border-color: #fca5a5; }
-  .bg-orange-100 { background-color: #ffedd5; }
-  .text-orange-700 { color: #c2410c; }
-  .border-orange-300 { border-color: #fdba74; }
-  .bg-yellow-100 { background-color: #fef9c3; }
-  .text-yellow-700 { color: #a16207; }
-  .border-yellow-300 { border-color: #fde047; }
-  .bg-blue-100 { background-color: #dbeafe; }
-  .text-blue-700 { color: #1d4ed8; }
-  .border-blue-300 { border-color: #93c5fd; }
-  .bg-green-100 { background-color: #dcfce7; }
-  .text-green-700 { color: #15803d; }
-  .text-red-600 { color: #dc2626; }
-  .text-orange-600 { color: #ea580c; }
-  .text-green-600 { color: #16a34a; }
-  
-  /* Buttons */
-  button { border: 1px solid transparent; cursor: pointer; }
-  .bg-blue-50 { background-color: #eff6ff; }
-  .border-blue-200 { border-color: #bfdbfe; }
-  .bg-red-50 { background-color: #fef2f2; }
-  .border-red-200 { border-color: #fecaca; }
-
-  @media (min-width: 1024px) {
-    .lg\\:max-w-xs { max-width: 20rem; }
+  /* 1. Main Container & Table Layout */
+  .table-wrapper { 
+    background: #ffffff; 
+    border-radius: 16px; 
+    border: 1px solid #eef2f6; 
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
   }
-  table { border-collapse: collapse; }
+
+  .pro-thead { 
+    background: #fcfcfd; 
+    border-bottom: 2px solid #f1f5f9; 
+  }
+  
+  .pro-th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pro-tr { 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .pro-tr:hover { 
+    background-color: #f8fbff; 
+    box-shadow: inset 4px 0 0 0 #2563eb;
+  }
+
+  /* 2. Visual Pills (Status/Priority) */
+  .pill {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  
+  .priority-high { background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; }
+  .priority-medium { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+  .priority-normal { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+
+  .status-resolved { background: #ecfdf5; color: #059669; }
+  .status-progress { background: #eff6ff; color: #2563eb; }
+  .status-pending { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+  .status-review { background: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
+
+  /* 3. Action Buttons */
+  .btn-manage {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .btn-assign { background: #2563eb; color: white; }
+  .btn-assign:hover { background: #1d4ed8; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+  
+  .btn-resolve { background: #10b981; color: white; }
+  .btn-resolve:hover { background: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+
+  .btn-close { background: #6366f1; color: white; }
+  .btn-close:hover { background: #4f46e5; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+
+  .btn-reject { background: #ffffff; color: #e11d48; border: 1px solid #fda4af; }
+  .btn-reject:hover { background: #fff1f2; }
+
+  .btn-view { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+  .btn-view:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+  /* 4. Refined Modal & Worker Cards */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .worker-modal {
+    background: white;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .preview-modal {
+    background: white;
+    width: 95%;
+    max-width: 550px;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-header {
+    padding: 24px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+  }
+
+  .worker-list-scroll {
+    padding: 16px 24px 24px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .worker-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .worker-card:hover:not(.disabled) {
+    border-color: #2563eb;
+    background: #f8fbff;
+    transform: translateY(-1px);
+  }
+
+  .worker-card.disabled { 
+    opacity: 0.5; 
+    cursor: not-allowed; 
+    background: #f8fafc; 
+  }
+
+  .rating-tag {
+    background: #fefce8; 
+    color: #854d0e; 
+    padding: 2px 8px; 
+    border-radius: 6px;
+    font-size: 10px; 
+    font-weight: 800; 
+    display: flex; 
+    align-items: center; 
+    gap: 2px;
+  }
 `;
 
-export default function IssueTable({ 
-  issues = [], // Default to empty array to prevent map errors
-  onIssueClick,
-  onAssign,
-  onReject,
-  onEscalate 
-}) {
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'Critical': return 'bg-red-100 text-red-700 border-red-300';
-      case 'High': return 'bg-orange-100 text-orange-700 border-orange-300';
-      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-      case 'Low': return 'bg-blue-100 text-blue-700 border-blue-300';
-      default: return 'bg-slate-100 text-slate-700 border-slate-300';
+const MOCK_WORKERS = [
+  { id: 1, name: "Rahul Sharma", rating: 4.8, available: true, dept: "road" },
+  { id: 2, name: "Amit Patel", rating: 4.5, available: true, dept: "road" },
+  { id: 3, name: "Vikram Singh", rating: 4.9, available: true, dept: "electricity" },
+  { id: 4, name: "Rohan Mehra", rating: 4.2, available: false, dept: "electricity" },
+  { id: 5, name: "Suresh Kumar", rating: 4.7, available: true, dept: "garbage" },
+  { id: 6, name: "Priya Rai", rating: 4.6, available: true, dept: "garbage" },
+  { id: 7, name: "Karan Johar", rating: 4.4, available: true, dept: "graffiti" },
+  { id: 8, name: "Arjun Kapoor", rating: 4.8, available: true, dept: "tree" },
+];
+
+export default function IssueTable({ issues = [], onIssueClick, onRefresh, currentDepartment = "" }) {
+  const [selectedIssue, setSelectedIssue] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+
+  const handleUpdateStatus = async (id, newStatus, additionalData = {}) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/authority/reports/update/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, ...additionalData })
+      });
+      if (response.ok) {
+        setIsModalOpen(false);
+        setPreviewImage(null);
+        if (onRefresh) onRefresh();
+      }
+    } catch (error) {
+      console.error("Update Error:", error);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Resolved': return 'bg-green-100 text-green-700';
-      case 'In Progress': return 'bg-blue-100 text-blue-700';
-      case 'Assigned': return 'bg-yellow-100 text-yellow-700';
-      case 'Pending': return 'bg-slate-100 text-slate-700';
-      default: return 'bg-slate-100 text-slate-700';
-    }
+  const getPriorityClass = (p) => {
+    const priority = p?.toLowerCase();
+    if (priority === 'high') return 'priority-high';
+    if (priority === 'medium') return 'priority-medium';
+    return 'priority-normal';
   };
 
-  const getSLAColor = (slaStatus) => {
-    switch (slaStatus) {
-      case 'Breached': return 'text-red-600';
-      case 'At Risk': return 'text-orange-600';
-      case 'On Track': return 'text-green-600';
-      default: return 'text-slate-600';
-    }
+  const getStatusClass = (status) => {
+    const s = status?.toLowerCase();
+    if (s === 'resolved') return 'status-resolved';
+    if (s === 'pending closure') return 'status-review';
+    if (s === 'in progress') return 'status-progress';
+    if (s === 'closed') return 'status-pending';
+    return 'status-pending';
   };
+
+  const getStatusIcon = (status) => {
+    const s = status?.toLowerCase();
+    if (s === 'resolved') return <CheckCircle2 className="w-3 h-3" />;
+    if (s === 'pending closure') return <Activity className="w-3 h-3" />;
+    if (s === 'in progress') return <Activity className="w-3 h-3" />;
+    if (s === 'closed') return <CheckCircle2 className="w-3 h-3 opacity-50" />;
+    return <Clock className="w-3 h-3" />;
+  };
+
+  const filteredWorkers = MOCK_WORKERS.filter(worker => {
+    const activeDept = (currentDepartment || "").trim().toLowerCase();
+    const workerTag = (worker.dept || "").trim().toLowerCase();
+    const isDeptMatch = activeDept.includes(workerTag) || workerTag.includes(activeDept);
+    const isSearchMatch = worker.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return isDeptMatch && isSearchMatch;
+  });
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="table-wrapper">
       <style>{css}</style>
+
+      {/* Proof Preview Modal */}
+      {previewImage && (
+        <div className="modal-overlay" onClick={() => setPreviewImage(null)} style={{ zIndex: 2000 }}>
+          <div className="preview-modal" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4 px-2">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-bold text-slate-800">Resolution Evidence</h3>
+              </div>
+              <button onClick={() => setPreviewImage(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            <div className="rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+              <img 
+                src={previewImage} 
+                alt="Work Evidence" 
+                className="w-full h-auto max-h-[60vh] object-contain mx-auto"
+                onError={(e) => { e.target.src = "https://via.placeholder.com/500x300?text=No+Image+Found"; }}
+              />
+            </div>
+            <p className="text-center text-xs text-slate-400 mt-4 italic">
+              Submitted by citizen for verification
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Assignment Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="worker-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Assign Dispatch</h3>
+                  <p className="text-xs text-blue-600 font-bold uppercase tracking-wider mt-1">{currentDepartment}</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Incident: {selectedIssue?.ref_number || selectedIssue?.id}</p>
+                </div>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder={`Search ${currentDepartment} staff...`} 
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="worker-list-scroll">
+              {filteredWorkers.length > 0 ? filteredWorkers.map(worker => (
+                <div 
+                  key={worker.id} 
+                  className={`worker-card ${!worker.available ? 'disabled' : ''}`}
+                  // Updated line: We now pass the assigned_worker name in the additionalData object
+onClick={() => worker.available && handleUpdateStatus(selectedIssue.id, 'In Progress', { assigned_worker: worker.name })}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 font-bold text-sm">
+                      {worker.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-800">{worker.name}</h4>
+                      <div className="rating-tag mt-0.5"><Star className="w-2.5 h-2.5 fill-current" /> {worker.rating}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className={`text-[10px] font-bold tracking-tighter ${worker.available ? 'text-green-500' : 'text-red-400'}`}>
+                      {worker.available ? 'AVAILABLE' : 'ON-TASK'}
+                    </span>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <User className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                  <p className="text-sm text-slate-400 font-medium">No {currentDepartment} workers found.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="pro-thead">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Issue ID
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Type
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Priority
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                SLA Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Assigned Worker
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="pro-th">Incident Reference</th>
+              <th className="pro-th">Type & Classification</th>
+              <th className="pro-th">Location Details</th>
+              <th className="pro-th">Priority</th>
+              <th className="pro-th">Current Status</th>
+              <th className="pro-th text-center">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
-            {issues.length > 0 ? (
-              issues.map((issue) => (
+          <tbody className="divide-y divide-slate-100">
+            {issues.length > 0 ? [...issues].reverse().map((issue) => {
+              const currentStatus = issue.status?.toLowerCase() || '';
+
+              return (
                 <tr 
                   key={issue.id} 
-                  className="hover:bg-slate-50 transition cursor-pointer"
-                  onClick={() => onIssueClick && onIssueClick(issue)}
+                  className="pro-tr cursor-pointer" 
+                  onClick={() => onIssueClick?.(issue)}
                 >
                   <td className="px-6 py-4">
-                    <span className="text-sm font-medium text-blue-600">{issue.id}</span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-900">
-                    {issue.type}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-sm text-slate-700">
-                      <MapPin className="w-4 h-4 text-slate-400" />
-                      <span className="truncate max-w-[150px] lg:max-w-xs">{issue.location}</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-900 leading-none mb-1">
+                        {issue.ref_number || "N/A"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium uppercase">
+                        Log-ID: {issue.id?.toString().slice(-6)}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getPriorityColor(issue.priority)}`}>
-                      {issue.priority}
+                    <span className="text-sm font-semibold text-slate-700 block">
+                      {issue.ai_prediction || "General Report"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(issue.status)}`}>
+                    <div className="flex items-start gap-2 max-w-[200px]">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+                      <span className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
+                        {issue.address || "No address provided"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`pill ${getPriorityClass(issue.severity)}`}>
+                      {issue.severity || 'Normal'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`pill ${getStatusClass(issue.status)}`}>
+                      {getStatusIcon(issue.status)}
                       {issue.status}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className={`flex items-center gap-1 text-sm font-medium ${getSLAColor(issue.slaStatus)}`}>
-                      {issue.slaStatus === 'Breached' && <AlertTriangle className="w-4 h-4" />}
-                      {issue.slaStatus === 'At Risk' && <Clock className="w-4 h-4" />}
-                      <span>{issue.slaStatus}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-700">
-                    {issue.assignedWorker || <span className="text-slate-400">Not assigned</span>}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      {issue.status === 'Pending' && onAssign && (
-                        <button
-                          onClick={() => onAssign(issue.id)}
-                          className="px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition border border-blue-200"
+                    <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      {currentStatus === 'pending' ? (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedIssue(issue);
+                            setIsModalOpen(true);
+                          }}
+                          className="btn-manage btn-assign shadow-sm"
                         >
-                          Assign
+                          Assign Dispatch
                         </button>
-                      )}
-                      {onReject && (
-                        <button
-                          onClick={() => onReject(issue.id)}
-                          className="px-3 py-1 text-xs font-semibold bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition border border-red-200"
+                      ) : currentStatus === 'in progress' ? (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                           // Change is_rejected to is_rejection to match backend
+handleUpdateStatus(issue.id, 'Resolved', { is_rejection: true });
+                          }}
+                          className="btn-manage btn-resolve shadow-sm"
                         >
-                          Reject
+                          Mark Resolved
                         </button>
+                      ) : currentStatus === 'pending closure' ? (
+                        <div className="flex flex-col gap-1.5 min-w-[140px]">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewImage(issue.resolved_image);
+                            }}
+                            className="btn-manage btn-view shadow-sm justify-center"
+                          >
+                            <Eye size={14}/> View Proof
+                          </button>
+                          <div className="flex gap-1.5">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUpdateStatus(issue.id, 'Closed', { is_rejected: false });
+                              }}
+                              className="btn-manage btn-close shadow-sm flex-1 justify-center text-[10px] px-1"
+                            >
+                              <CheckCircle2 size={12}/> Approve
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUpdateStatus(issue.id, 'Resolved', { is_rejected: true });
+                              }}
+                              className="btn-manage btn-reject shadow-sm flex-1 justify-center text-[10px] px-1"
+                            >
+                              <XCircle size={12}/> Reject
+                            </button>
+                          </div>
+                        </div>
+                      ) : currentStatus === 'resolved' ? (
+                        <div className="text-[10px] text-amber-600 font-bold italic flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">
+                          <Clock className="w-3 h-3" /> Awaiting Citizen Photo
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-slate-400 text-xs font-bold italic">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Archived
+                        </div>
                       )}
                     </div>
                   </td>
                 </tr>
-              ))
-            ) : (
+              );
+            }) : (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center">
-                  <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500 font-medium">No issues found matching your filters</p>
+                <td colSpan={6} className="px-6 py-20 text-center">
+                  <div className="bg-slate-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-8 h-8 text-slate-300" />
+                  </div>
+                  <h4 className="text-slate-900 font-bold">No Matching Reports</h4>
+                  <p className="text-slate-500 text-sm">No issues found matching your current filters.</p>
                 </td>
               </tr>
             )}

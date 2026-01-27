@@ -78,9 +78,22 @@ const CitizenLogin = () => {
             </div>
           </div>
 
-          <button type="submit" className="login-button">
-            Login to CivicAI <LogIn size={18} style={{marginLeft: '8px'}} />
+          {/* --- UPDATED BUTTON STRUCTURE --- */}
+          <button 
+            type="submit" 
+            className="login-button" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              width: '100%',
+              gap: '8px' 
+            }}
+          >
+            <span style={{ display: 'inline-block' }}>Login to CivicAI</span>
+            <LogIn size={18} />
           </button>
+          {/* --- END UPDATED BUTTON --- */}
 
           <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748b' }}>
             New user? <Link to="/signup-user" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>Create a citizen account</Link>

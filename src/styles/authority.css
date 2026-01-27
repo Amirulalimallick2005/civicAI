@@ -42,11 +42,11 @@ body {
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
-  position: fixed;
+  position: sticky; /* Changed from fixed to sticky */
+  top: 0;
   height: 100vh;
   z-index: 1000;
 }
-
 .sidebar.collapsed {
   width: 70px;
 }
@@ -159,15 +159,16 @@ body {
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: 260px;
-  transition: margin-left 0.3s ease;
+  /* margin-left: 260px;  <-- DELETE THIS LINE */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Prevents internal grids from pushing the width */
 }
 
+/* Update this too */
 .main-content.collapsed {
-  margin-left: 70px;
+  margin-left: 0; /* Change from 70px to 0 */
 }
 
 .content-wrapper {

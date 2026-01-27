@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+
+// --- STYLES ---
 import './styles/authority.css';
 import './styles/index.css'; 
-// Note: If your styles folder is inside src, use './styles/index.css'
-// If it's outside src, adjust the path accordingly.
+
 // --- CITIZEN PAGES ---
 import LandingPage from './pages/LandingPage'; 
 import RoleSelection from './pages/RoleSelection'; 
@@ -14,10 +15,8 @@ import UploadImage from './pages/UploadImage';
 import AnalysisResult from './pages/AnalysisResult';
 import ReportDetails from './pages/ReportDetails';
 import FinalReport from './pages/FinalReport';
-// Change this line in App.jsx
 import SubmissionSuccess from './pages/SubmissionSuccess';
 import TrackComplaint from './pages/TrackComplaint';
-
 
 // --- AUTHORITY PAGES ---
 import Login from './pages/Login'; 
@@ -28,39 +27,39 @@ import IssueDetails from './pages/IssueDetails';
 import Workers from './pages/Workers';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
-// Add this line with your other authority imports
 import SLA from './pages/SLA';
-
 
 // --- COMPONENTS ---
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
-
 
 const AuthorityApp = () => {
   const [isAuth, setIsAuth] = useState(localStorage.getItem("isAuthorityAuth") === "true");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   const navigate = useNavigate();
-  const location = useLocation(); // Need this to detect current page from URL
+  const location = useLocation();
 
-  // 1. Determine current page for the Sidebar highlighting
-  // If URL is /authority/analytics, currentPage becomes "analytics"
+  useEffect(() => {
+    const authStatus = localStorage.getItem("isAuthorityAuth") === "true";
+    if (authStatus !== isAuth) {
+      setIsAuth(authStatus);
+    }
+  }, [location, isAuth]);
+
   const currentPage = location.pathname.split('/').pop() || 'dashboard';
-  
-  // 2. Get department name from storage
   const currentDept = localStorage.getItem("authDept") || "General Admin";
 
   const handleLoginSuccess = () => {
     localStorage.setItem("isAuthorityAuth", "true");
     setIsAuth(true);
+    navigate('/authority/dashboard');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuthorityAuth");
-    localStorage.removeItem("authEmail");
-    localStorage.removeItem("authDept");
+    localStorage.clear();
     setIsAuth(false);
+    navigate('/citizen-login');
   };
 
   if (!isAuth) {
@@ -68,19 +67,55 @@ const AuthorityApp = () => {
   }
 
   return (
-    <div className="authority-app flex">
+    <div 
+      className="authority-app" 
+      style={{ 
+        display: 'flex', 
+        width: '100%', 
+        height: '100vh', 
+        overflow: 'hidden', 
+        background: '#f8fafc' 
+      }}
+    >
       <Sidebar 
         currentPage={currentPage}
         department={currentDept}
-        onNavigate={(pageId) => navigate(`/authority/${pageId}`)} // This is the missing function!
+        onNavigate={(pageId) => navigate(`/authority/${pageId}`)} 
         onLogout={handleLogout}
         collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
       />
-      <div className={`main-content flex-1 ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Topbar onLogout={handleLogout} /> 
-        <div className="content-wrapper p-4">
+      
+      {/* CRITICAL FIX: 
+        We use marginLeft: 0 to override the 260px margin in your CSS.
+        flex: 1 and minWidth: 0 ensure the content fills the rest of the screen without overflow.
+      */}
+      <div 
+        className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}
+        style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          minWidth: 0, 
+          marginLeft: 0, // This kills the gap
+          height: '100vh',
+          overflowX: 'hidden',
+          position: 'relative'
+        }}
+      >
+        <Topbar onLogout={handleLogout} department={currentDept} /> 
+        
+        <div 
+          className="content-wrapper" 
+          style={{ 
+            flex: 1, 
+            overflowY: 'auto', 
+            width: '100%',
+            padding: '24px' // Standard dashboard padding
+          }}
+        >
           <Routes>
-            <Route path="/" element={<Navigate to="dashboard" />} />
+            <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="issues" element={<IssueList />} />
             <Route path="issues/:id" element={<IssueDetails />} />
@@ -99,11 +134,8 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* PUBLIC ROUTES */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/get-started" element={<RoleSelection />} />
-        
-        {/* CITIZEN ROUTES */}
         <Route path="/citizen-login" element={<CitizenLogin />} />
         <Route path="/signup-user" element={<UserSignup />} />
         <Route path="/citizen-portal" element={<CitizenPortal />} />
@@ -113,11 +145,9 @@ const App = () => {
         <Route path="/final-report" element={<FinalReport />} />
         <Route path="/submission-success" element={<SubmissionSuccess />} />
         <Route path="/track-complaint" element={<TrackComplaint />} />
-        {/* AUTHORITY ROUTES */}
         <Route path="/authority-signup" element={<AuthoritySignup />} />
-        
-        {/* The * handles all sub-routes inside AuthorityApp (Dashboard, Issues, etc.) */}
         <Route path="/authority/*" element={<AuthorityApp />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

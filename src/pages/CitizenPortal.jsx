@@ -83,19 +83,21 @@ const CitizenPortal = () => {
       {/* Navigation */}
       <nav style={{ background: 'white', borderBottom: '1px solid #f1f5f9', position: 'sticky', top: 0, zIndex: 1000 }}>
         <div className="max-container" style={{ height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => navigate('/')}>
             <div style={{ background: '#2563eb', color: 'white', padding: '8px 12px', borderRadius: '10px', fontWeight: '800' }}>CA</div>
             <span style={{ fontSize: '22px', fontWeight: '700', letterSpacing: '-0.5px' }}>CivicAI</span>
           </div>
           
           <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-            <a href="#" className="nav-item">Home</a>
+            <a onClick={() => navigate('/')} className="nav-item">Home</a>
             <a href="#how-it-works" onClick={(e) => scrollToSection(e, 'how-it-works')} className="nav-item">How It Works</a>
-            <a href="#" className="nav-item">Track Complaint</a>
+            
+            {/* UPDATED: Navbar Link to Track Complaint */}
+            <a onClick={() => navigate('/track-complaint')} className="nav-item">Track Complaint</a>
+            
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '14px', borderRight: '1px solid #e2e8f0', paddingRight: '20px' }}>
               <Globe size={16} /> EN / HI
             </div>
-            {/* Added navigation to Report Issue button in nav */}
             <button 
               onClick={() => navigate('/upload-image')}
               className="btn-primary btn-hover-effect" 
@@ -118,7 +120,6 @@ const CitizenPortal = () => {
               Just click a photo. AI detects the issue, generates a report, and sends it to the right authority instantly.
             </p>
             <div style={{ display: 'flex', gap: '16px', marginBottom: '48px' }}>
-              {/* UPDATED: Report Now button navigation */}
               <button 
                 onClick={() => navigate('/upload-image')}
                 className="btn-primary btn-hover-effect" 
@@ -126,7 +127,9 @@ const CitizenPortal = () => {
               >
                 Report Now <ArrowRight size={20} />
               </button>
-             <button 
+              
+              {/* UPDATED: Hero Button to Track Status */}
+              <button 
                 onClick={() => navigate('/track-complaint')}
                 className="btn-secondary btn-hover-effect" 
                 style={{ padding: '16px 36px', borderRadius: '12px', fontWeight: '700', fontSize: '16px' }}
@@ -172,7 +175,6 @@ const CitizenPortal = () => {
       {/* Quick Action Cards */}
       <section style={{ padding: '40px 0' }}>
         <div className="max-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-          {/* UPDATED: Take Photo card navigation */}
           <div 
             className="action-card" 
             onClick={() => navigate('/upload-image')}
@@ -205,7 +207,12 @@ const CitizenPortal = () => {
             </div>
           </div>
 
-          <div className="action-card" style={{ background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)' }}>
+          {/* UPDATED: My Complaints Card navigation */}
+          <div 
+            className="action-card" 
+            onClick={() => navigate('/track-complaint')}
+            style={{ background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)' }}
+          >
             <FileText size={32} />
             <div>
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>My Complaints</h3>

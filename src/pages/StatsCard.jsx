@@ -1,32 +1,49 @@
 import React from 'react';
 
-// Removed TypeScript interface StatsCardProps
-// Removed LucideIcon type import
-
 export default function StatsCard({ 
   title, 
   value, 
-  icon: Icon, // Destructuring and renaming to 'Icon' for React component usage
+  icon: Icon, 
   trend,
   trendUp,
-  bgColor = 'from-blue-50 to-blue-100',
+  // We've updated defaults to match the new "Slate & Blue" professional palette
+  bgColor = 'bg-white', 
   iconColor = 'text-blue-600',
-  textColor = 'text-blue-900'
+  textColor = 'text-slate-900'
 }) {
   return (
-    <div className={`bg-gradient-to-br ${bgColor} rounded-xl p-6 border border-slate-200 shadow-sm`}>
-      <div className="flex items-center justify-between mb-3">
-        {/* We use <Icon /> here because it was passed as a component reference */}
-        <Icon className={`w-8 h-8 ${iconColor}`} />
+    <div className={`glass-panel p-5 transition-all duration-300 hover:-translate-y-1 ${bgColor}`}>
+      <div className="flex items-center justify-between mb-4">
+        {/* Icon Container with a soft background circle */}
+        <div className={`p-2.5 rounded-lg bg-slate-50 border border-slate-100`}>
+          <Icon className={`w-6 h-6 ${iconColor}`} />
+        </div>
         
         {trend && (
-          <span className={`text-xs font-medium ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
-            {trend}
-          </span>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+            trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+          }`}>
+            {trendUp ? '↑' : '↓'} {trend}
+          </div>
         )}
       </div>
-      <p className={`text-3xl font-bold mb-1 ${textColor}`}>{value}</p>
-      <p className={`text-sm ${textColor} opacity-80 font-medium`}>{title}</p>
+
+      <div>
+        <h3 className={`text-3xl font-extrabold tracking-tight ${textColor}`}>
+          {value}
+        </h3>
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-1">
+          {title}
+        </p>
+      </div>
+
+      {/* Subtle decorative element for that "Chic" look */}
+      <div className="mt-4 h-1 w-full bg-slate-50 rounded-full overflow-hidden">
+        <div 
+          className={`h-full opacity-60 ${iconColor.replace('text', 'bg')}`} 
+          style={{ width: '40%' }} 
+        />
+      </div>
     </div>
   );
 }

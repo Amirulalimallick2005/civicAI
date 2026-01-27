@@ -18,7 +18,7 @@ const RoleSelection = () => {
           <ShieldCheck size={48} color="#0ea5e9" />
           <h3 style={{ margin: '15px 0 10px' }}>Authority Portal</h3>
           <p style={{ color: '#64748b', fontSize: '0.9rem' }}>For government officials and municipal workers to manage and resolve issues.</p>
-          <button style={btnStyle}>Login as Authority</button>
+          <button style={btnStyle}>Login / Sign Up</button>
         </div>
 
         {/* Card 2: Citizen/User - CONNECTED TO YOUR NEW LOGIN */}

@@ -16,10 +16,52 @@ const sidebarStyles = (
       top: 0;
       font-family: sans-serif;
     }
-    .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #f1f5f9; }
-    .logo-box { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #06b6d4); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
-    .dept-badge { background: #eff6ff; border: 1px solid #dbeafe; padding: 8px; border-radius: 8px; }
+    /* Header container now holds everything in a vertical stack */
+    .sidebar-header { 
+      padding: 1.5rem; 
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 12px; 
+    }
+    .logo-box { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.75rem; 
+    }
+    .logo-icon { 
+      width: 36px; 
+      height: 36px; 
+      background: linear-gradient(135deg, #2563eb, #06b6d4); 
+      border-radius: 8px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: white; 
+    }
+    /* Cleaned up Department Badge */
+    .dept-badge { 
+      background: #f8fafc; 
+      border: 1px solid #edf2f7; 
+      padding: 8px 12px; 
+      border-radius: 8px;
+      align-self: flex-start; /* Keeps it from stretching too wide */
+      width: 100%; /* Optional: ensures uniform look */
+      box-sizing: border-box;
+    }
+    .dept-label { 
+      font-size: 9px; 
+      color: #64748b; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .dept-name { 
+      font-size: 13px; 
+      color: #1e3a8a; 
+      font-weight: 600; 
+    }
     .nav-menu { flex: 1; padding: 1rem; display: flex; flex-direction: column; gap: 4px; }
     .nav-btn { 
       width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
@@ -46,17 +88,20 @@ export default function Sidebar({ currentPage, onNavigate, department }) {
     <div className="sidebar-container">
       {sidebarStyles}
       <div className="sidebar-header">
+        {/* Top: Logo and Branding */}
         <div className="logo-box">
-          <div className="logo-icon"><Shield size={24} /></div>
+          <div className="logo-icon"><Shield size={22} /></div>
           <div>
-            <div style={{ fontWeight: 'bold', color: '#0f172a' }}>CivicConnect</div>
+            <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '16px' }}>CivicConnect</div>
             <div style={{ fontSize: '11px', color: '#64748b' }}>Authority Portal</div>
           </div>
         </div>
+        
+        {/* Bottom: Department Badge (Now properly nested below) */}
         {department && (
           <div className="dept-badge">
-            <div style={{ fontSize: '10px', color: '#2563eb', fontWeight: 'bold', textTransform: 'uppercase' }}>Department</div>
-            <div style={{ fontSize: '13px', color: '#1e3a8a', fontWeight: '500' }}>{department}</div>
+            <div className="dept-label">Active Department</div>
+            <div className="dept-name">{department}</div>
           </div>
         )}
       </div>
